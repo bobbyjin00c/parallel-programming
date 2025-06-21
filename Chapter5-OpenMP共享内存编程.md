@@ -62,7 +62,7 @@ int x=10;
 |--|--|
 |#pragma omp|开始|
 |#pragma omp parallel|创建并行区域（不分配具体任务）|
-|#pragma omp for|将循环迭代分配给线程（炫耀在parallel区域内使用|
+|#pragma omp for|将循环迭代分配给线程（在parallel区域内使用）|
 |#pragma omp sections|将代码块分配给不同线程执行|
 |#pragma omp critical|所有未命名critical指令互斥（作用在全局匿名临界区|）
 |#pragma omp critical(name)|仅与同名的critical(name)互斥（作用在命名临界区）|
@@ -82,6 +82,13 @@ for(int i=0;i<100;i++){
     sum+=i;
 }
 ```
+- reduction子句变量初始值
+- （+）     初始值为0 ；私有副本初始为0，最终结果原始值+各线程和
+- （*）     初始值为1 ；私有副本初始为1，最终结果为原始值*各线程乘积
+- （&&）    初始值为1（true）
+- （||）    初始值为0（false）
+- （max）   初始值为对应数据类型最小值（如INT_MIN）
+- （min）   初始值为对应数据类型最大值（如INT_MAX）
 
 ### parallel for指令
 - 警告：循环必须无数组依赖性
@@ -228,3 +235,12 @@ int counter;
 #pragma omp threadprivate(counter)
 ```
 
+## Question
+1. **直接在循环体外面加上# pragma omp parallel for来实现循环体并行化是否总可行？**
+   OpenMP编译器不会检查使用parallel for指令并行化的循环中各迭代之间的依赖性
+   如果一个循环中某些迭代结果依赖于其他迭代，那么该循环就无法被OpenMP正确并行化，可能引发竞争条件或错误结果
+
+2. **#pragma omp parallel for 和 #pragma omp for有何区别谁的效率更高**
+   区别主要在于并行区域的创建方式，效率取决于具体使用场景
+   #pragma omp parallel for 隐式创建并行区域并在该区域内并行化循环；适用于直接并行化单个循环，无需额外并行操作
+   #pragma omp for必须在显式的parallel区域使用，仅分配循环迭代，不创建新线程；适用于嵌套并行或多个循环共享同一并行区域
