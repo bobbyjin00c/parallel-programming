@@ -191,5 +191,9 @@ MPI_Allreduce: 多对多+规约，存储到所有进程，全局同步计算结�
 10. 调用MPI_SendRecv和分别调用Send&Recv有何区别：
     调用MPI_SendRecv同时完成发送与接收，操作都是原子的，避免死锁
     分别调用可能引发死锁
-
+    
+11. 奇偶转置排序：简单易并行化的排序方法
+    even phases, compare swaps:(a[0],a[1]),(a[2],a[3]),(a[4],a[5]),...
+    odd phase, compare swaps:  (a[1],a[2]),(a[3],a[4]),(a[5],a[6]),...
+    
  
